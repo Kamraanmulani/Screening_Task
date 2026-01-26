@@ -1,0 +1,55 @@
+.upload-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.upload-section h2 {
+  color: #333;
+  margin-bottom: 30px;
+}
+
+.upload-card {
+  background: white;
+  padding: 60px;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+}
+
+#file-upload {
+  display: none;
+}
+
+.upload-label {
+  display: inline-block;
+  padding: 15px 40px;
+  background: #000000;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.upload-label:hover {
+  background: #333333;
+  transform: translateY(-2px);
+}
+
+.upload-hint {
+  margin-top: 20px;
+  color: #666;
+  font-size: 14px;
+}
+
+.upload-error {
+  background: #ffebee;
+  color: #c62828;
+  padding: 10px;
+  border-radius: 5px;
+  margin: 15px 0;
+  font-size: 14px;
+}
