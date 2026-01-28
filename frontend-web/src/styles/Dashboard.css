@@ -91,6 +91,10 @@
   max-height: 350px !important;
 }
 
+.chart-wide {
+  grid-column: 1 / -1;
+}
+
 .table-card {
   background: white;
   padding: 25px;

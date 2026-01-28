@@ -14,6 +14,9 @@ export const useDatasets = (isAuthenticated) => {
   }, [isAuthenticated]);
 
   const loadDatasets = async () => {
+    if (!isAuthenticated) {
+      return;
+    }
     try {
       const data = await datasetAPI.getAll();
       setDatasets(data);
@@ -22,6 +25,9 @@ export const useDatasets = (isAuthenticated) => {
       }
     } catch (err) {
       console.error('Error loading datasets:', err);
+      if (err.response?.status === 401) {
+        console.log('Authentication token invalid or expired');
+      }
     }
   };
 
