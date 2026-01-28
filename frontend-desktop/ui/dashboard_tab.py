@@ -4,9 +4,10 @@ Dashboard Tab - Data visualization interface
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton, 
     QLabel, QTableWidget, QTableWidgetItem, QGroupBox,
-    QFormLayout, QFileDialog, QMessageBox
+    QFormLayout, QFileDialog, QMessageBox, QScrollArea
 )
 from PyQt5.QtGui import QFont
+from PyQt5.QtCore import Qt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from config import EQUIPMENT_HEADERS, PDF_FILTER
@@ -23,6 +24,17 @@ class DashboardTab(QWidget):
     
     def init_ui(self):
         """Initialize the UI components"""
+        # Main layout for the tab
+        main_layout = QVBoxLayout()
+        
+        # Create a scroll area
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        
+        # Create a widget to hold all content
+        content_widget = QWidget()
         self.layout = QVBoxLayout()
         
         # Dataset info
@@ -56,11 +68,31 @@ class DashboardTab(QWidget):
         
         self.layout.addLayout(charts_layout)
         
-        # Table
-        self.equipment_table = QTableWidget()
-        self.layout.addWidget(self.equipment_table)
+        # New charts row
+        new_charts_layout = QHBoxLayout()
         
-        self.setLayout(self.layout)
+        # Line chart - Parameter trends
+        self.line_figure = Figure(figsize=(7, 3.5))
+        self.line_canvas = FigureCanvas(self.line_figure)
+        new_charts_layout.addWidget(self.line_canvas)
+        
+        # Horizontal bar chart - Top 5
+        self.top5_figure = Figure(figsize=(6, 4))
+        self.top5_canvas = FigureCanvas(self.top5_figure)
+        new_charts_layout.addWidget(self.top5_canvas)
+        
+        self.layout.addLayout(new_charts_layout)
+        
+        # Set the layout to content widget
+        content_widget.setLayout(self.layout)
+        
+        # Set content widget to scroll area
+        scroll_area.setWidget(content_widget)
+        
+        # Add scroll area to main layout
+        main_layout.addWidget(scroll_area)
+        
+        self.setLayout(main_layout)
     
     def update_dashboard(self, dataset):
         """Update dashboard with dataset information"""
@@ -82,9 +114,8 @@ class DashboardTab(QWidget):
         # Update charts
         self._update_bar_chart(dataset)
         self._update_pie_chart(dataset)
-        
-        # Update table
-        self._update_equipment_table(dataset)
+        self._update_line_chart(dataset)
+        self._update_top5_chart(dataset)
     
     def _update_statistics(self, dataset):
         """Update the statistics section"""
@@ -133,21 +164,66 @@ class DashboardTab(QWidget):
         
         self.pie_canvas.draw()
     
-    def _update_equipment_table(self, dataset):
-        """Update the equipment table"""
+    def _update_line_chart(self, dataset):
+        """Update the line chart - parameter trends"""
+        self.line_figure.clear()
+        ax = self.line_figure.add_subplot(111)
+        
         equipment = dataset.get('equipment', [])
-        self.equipment_table.setRowCount(len(equipment))
-        self.equipment_table.setColumnCount(5)
-        self.equipment_table.setHorizontalHeaderLabels(EQUIPMENT_HEADERS)
+        if equipment:
+            equipment_names = [eq['equipment_name'] for eq in equipment]
+            flowrates = [eq['flowrate'] for eq in equipment]
+            pressures = [eq['pressure'] for eq in equipment]
+            temperatures = [eq['temperature'] for eq in equipment]
+            
+            x_positions = range(len(equipment_names))
+            
+            ax.plot(x_positions, flowrates, marker='o', label='Flowrate', 
+                   color='#36a2eb', linewidth=2, markersize=6)
+            ax.plot(x_positions, pressures, marker='s', label='Pressure', 
+                   color='#ff6384', linewidth=2, markersize=6)
+            ax.plot(x_positions, temperatures, marker='^', label='Temperature', 
+                   color='#ffce56', linewidth=2, markersize=6)
+            
+            ax.set_title('Parameter Trends Across Equipment', fontweight='bold')
+            ax.set_xlabel('Equipment')
+            ax.set_ylabel('Value')
+            ax.set_xticks(x_positions)
+            ax.set_xticklabels(equipment_names, rotation=45, ha='right')
+            ax.legend()
+            ax.grid(True, alpha=0.3)
+            
+        self.line_figure.tight_layout()
+        self.line_canvas.draw()
+    
+    def _update_top5_chart(self, dataset):
+        """Update the horizontal bar chart - top 5 equipment"""
+        self.top5_figure.clear()
+        ax = self.top5_figure.add_subplot(111)
         
-        for i, eq in enumerate(equipment):
-            self.equipment_table.setItem(i, 0, QTableWidgetItem(eq['equipment_name']))
-            self.equipment_table.setItem(i, 1, QTableWidgetItem(eq['equipment_type']))
-            self.equipment_table.setItem(i, 2, QTableWidgetItem(f"{eq['flowrate']:.2f}"))
-            self.equipment_table.setItem(i, 3, QTableWidgetItem(f"{eq['pressure']:.2f}"))
-            self.equipment_table.setItem(i, 4, QTableWidgetItem(f"{eq['temperature']:.2f}"))
-        
-        self.equipment_table.resizeColumnsToContents()
+        equipment = dataset.get('equipment', [])
+        if equipment:
+            # Sort by flowrate and get top 5
+            sorted_equipment = sorted(equipment, key=lambda x: x['flowrate'], reverse=True)[:5]
+            
+            names = [eq['equipment_name'] for eq in sorted_equipment]
+            flowrates = [eq['flowrate'] for eq in sorted_equipment]
+            
+            # Create horizontal bar chart with colorful bars
+            y_positions = range(len(names))
+            colors = ['#9966ff', '#36a2eb', '#ffce56', '#4bc0c0', '#ff6384']
+            ax.barh(y_positions, flowrates, color=colors[:len(names)], 
+                   edgecolor='black', linewidth=1.5)
+            
+            ax.set_title('Top 5 Equipment by Flowrate', fontweight='bold', fontsize=12)
+            ax.set_xlabel('Flowrate', fontsize=11)
+            ax.set_yticks(y_positions)
+            ax.set_yticklabels(names, fontsize=10)
+            ax.invert_yaxis()  # Highest at top
+            ax.grid(True, axis='x', alpha=0.3)
+            
+        self.top5_figure.tight_layout()
+        self.top5_canvas.draw()
     
     def download_report(self):
         """Download PDF report for current dataset"""
@@ -158,7 +234,7 @@ class DashboardTab(QWidget):
         filename, _ = QFileDialog.getSaveFileName(
             self,
             "Save PDF Report",
-            f"equipment_report_{self.current_dataset['id']}.pdf",
+            "Chemical Equipment Analysis Report.pdf",
             PDF_FILTER
         )
         

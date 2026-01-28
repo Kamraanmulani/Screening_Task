@@ -9,6 +9,7 @@ from PyQt5.QtGui import QFont
 from services.api_service import APIService
 from ui.upload_tab import UploadTab
 from ui.dashboard_tab import DashboardTab
+from ui.equipment_table_tab import EquipmentTableTab
 from ui.history_tab import HistoryTab
 from config import APP_NAME, WINDOW_WIDTH, WINDOW_HEIGHT
 
@@ -74,6 +75,10 @@ class MainWindow(QMainWindow):
         self.dashboard_tab = DashboardTab(self.api_service)
         self.tabs.addTab(self.dashboard_tab, "Dashboard")
         
+        # Equipment Table tab
+        self.equipment_table_tab = EquipmentTableTab()
+        self.tabs.addTab(self.equipment_table_tab, "Equipment Table")
+        
         # History tab
         self.history_tab = HistoryTab(
             self.api_service,
@@ -87,11 +92,13 @@ class MainWindow(QMainWindow):
         if datasets and not self.current_dataset:
             self.current_dataset = datasets[0]
             self.dashboard_tab.update_dashboard(self.current_dataset)
+            self.equipment_table_tab.update_table(self.current_dataset)
     
     def handle_upload_success(self, dataset):
         """Handle successful file upload"""
         self.current_dataset = dataset
         self.dashboard_tab.update_dashboard(dataset)
+        self.equipment_table_tab.update_table(dataset)
         self.history_tab.load_datasets()
         self.tabs.setCurrentIndex(1)  # Switch to dashboard tab
     
@@ -99,6 +106,7 @@ class MainWindow(QMainWindow):
         """Handle viewing a dataset from history"""
         self.current_dataset = dataset
         self.dashboard_tab.update_dashboard(dataset)
+        self.equipment_table_tab.update_table(dataset)
         self.tabs.setCurrentIndex(1)  # Switch to dashboard tab
     
     def logout(self):
