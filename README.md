@@ -82,9 +82,18 @@ python main.py
 
 ## 🔌 API Endpoints
 
-- `POST /api/token/` - Login
-- `GET/POST /api/datasets/` - List/Upload datasets
-- `GET /api/datasets/{id}/report/` - Download PDF
+### Authentication
+- `POST /api/token/` - Login (obtain JWT access & refresh tokens)
+- `POST /api/token/refresh/` - Refresh JWT token
+
+### Datasets
+- `GET /api/datasets/` - List last 5 datasets
+- `POST /api/datasets/` - Upload new CSV dataset
+- `GET /api/datasets/{id}/summary/` - Get dataset summary statistics
+- `GET /api/datasets/{id}/report/` - Download PDF report
+
+### System
+- `GET /api/health/` - Health check endpoint
 
 ---
 
