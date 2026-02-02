@@ -3,7 +3,7 @@
 
 Full-stack application for uploading, analyzing, and visualizing chemical equipment data with both web and desktop interfaces.
 
-** Credentials for Log in :** `testuser` / `test123` 
+Credentials for Log in : `testuser` / `test123` 
 
 ---
 
