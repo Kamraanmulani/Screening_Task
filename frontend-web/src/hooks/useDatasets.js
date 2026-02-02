@@ -58,7 +58,7 @@ export const useDatasets = (isAuthenticated) => {
       console.log('Response received, creating PDF blob');
       
       const pdfBlob = new Blob([blob], { type: 'application/pdf' });
-      downloadFile(pdfBlob, `equipment_report_${datasetId}.pdf`);
+      downloadFile(pdfBlob, 'Chemical Equipment Analysis Report.pdf');
       
       console.log('PDF download initiated successfully');
       alert('PDF report downloaded successfully!');
