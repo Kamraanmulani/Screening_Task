@@ -5,3 +5,7 @@ django-cors-headers
 pandas
 reportlab
 python-dateutil
+psycopg2-binary
+gunicorn
+whitenoise
+dj-database-url
