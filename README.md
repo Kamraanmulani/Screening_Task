@@ -3,6 +3,8 @@
 
 Full-stack application for uploading, analyzing, and visualizing chemical equipment data with both web and desktop interfaces.
 
+** Credentials for Log in :** `testuser` / `test123` 
+
 ---
 
 ## 🚀 Quick Start
@@ -23,7 +25,7 @@ python manage.py runserver
 ```
 **Backend runs on:** `http://localhost:8000`
 
-**Test Credentials:** `testuser` / `test123` (or use your superuser)
+
 
 ---
 
